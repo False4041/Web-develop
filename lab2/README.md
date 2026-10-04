@@ -388,53 +388,43 @@ Product.objects.all()
 
 ### 1 Что такое модель в Django и для чего она используется?
 
-Модель — класс Python, наследующийся от `django.db.models.Model`. Он описывает данные: поля, их типы и поведение объектов. Обычно модель соответствует таблице базы данных, а экземпляр — одной записи. В работе `Product` описывает товар. См. [модели в учебнике Django](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#creating-models).
+Это класс Python, который описывает таблицу базы данных и её поля. Например, `Product` хранит данные о товарах.
 
 ### 2 Какие типы полей вы знаете? Приведите примеры.
 
-В `Product` используются `CharField` для названия, `DecimalField` для цены, `TextField` для описания, `BooleanField` для наличия, `DateTimeField` для времени создания и `IntegerField` для количества. Другие примеры: `DateField`, `EmailField`, `ImageField`, `ForeignKey` и `ManyToManyField`. См. [справочник полей Django](https://docs.djangoproject.com/en/6.0/ref/models/fields/).
+`CharField` — строка, `TextField` — текст, `IntegerField` — целое число, `DecimalField` — цена, `BooleanField` — да/нет, `DateTimeField` — дата и время.
 
 ### 3 Чем отличаются blank=True и null=True?
 
-`blank=True` разрешает пустое значение при проверке форм и модели. `null=True` разрешает хранить SQL `NULL` в базе данных. Это разные уровни: проверка ввода и хранение. Для строк обычно используют `blank=True` без `null=True`, сохраняя пустую строку. В `Product.description` указано `blank=True`. См. [параметры null и blank](https://docs.djangoproject.com/en/6.0/ref/models/fields/#null).
+`blank=True` разрешает оставить поле пустым в форме. `null=True` разрешает хранить `NULL` в базе.
 
 ### 4 Что такое миграции и зачем они нужны? Основные команды.
 
-Миграции хранят историю изменений моделей и позволяют воспроизводимо менять схему базы. `makemigrations` создаёт файлы изменений, `migrate` применяет или откатывает миграции, `sqlmigrate` показывает SQL выбранной миграции, `showmigrations` показывает миграции и статус их применения. В работе первая миграция создала таблицу товаров, вторая добавила `quantity`. См. [команды работы с миграциями](https://docs.djangoproject.com/en/6.0/topics/migrations/#the-commands).
+Миграции переносят изменения моделей в структуру базы. `makemigrations` создаёт миграции, `migrate` применяет, `sqlmigrate` показывает SQL, `showmigrations` — их статус.
 
 ### 5 Как создать суперпользователя для административной панели?
 
-После применения миграций выполнить `python manage.py createsuperuser` и ввести запрошенные имя пользователя, адрес электронной почты и пароль. Затем запустить сервер и открыть `/admin/`. Для управления товарами через панель модель потребуется зарегистрировать в `catalog/admin.py`. Создание суперпользователя здесь описано теоретически; практическая настройка админки относится к следующей работе. См. [создание администратора](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#creating-an-admin-user).
+Выполнить `python manage.py createsuperuser` и ввести имя, почту и пароль.
 
 ### 6 Что такое ORM? Основные методы CRUD.
 
-ORM связывает объекты Python с данными реляционной базы и формирует SQL-запросы. Create: `objects.create()` либо конструктор и `save()`. Read: `all()`, `filter()`, `get()`, `exclude()`. Update: изменение полей и `save()` либо `QuerySet.update()`. Delete: `delete()` объекта или набора записей. Все четыре операции проверены на товарах. См. [работу с ORM](https://docs.djangoproject.com/en/6.0/topics/db/queries/).
+ORM позволяет работать с базой через Python. Создание — `create()`, чтение — `all()`, `filter()`, `get()`, изменение — поля объекта и `save()`, удаление — `delete()`.
 
 ### 7 В чём разница между filter() и get()?
 
-`filter()` возвращает `QuerySet` с нулём, одним или несколькими объектами. `get()` возвращает единственный объект; если его нет, вызывает `DoesNotExist`, если найдено несколько — `MultipleObjectsReturned`. Для выбора мыши использован уникальный первичный ключ `pk=1`. См. [получение одного объекта](https://docs.djangoproject.com/en/6.0/topics/db/queries/#retrieving-a-single-object-with-get).
+`filter()` возвращает набор записей, даже пустой. `get()` возвращает одну запись и выдаёт ошибку, если найдено ноль или несколько.
 
 ### 8 Как настроить загрузку изображений в Django?
 
-В модели используют `ImageField(upload_to="products/")` и устанавливают Pillow. В настройках задают `MEDIA_ROOT = BASE_DIR / "media"` и `MEDIA_URL = "/media/"`. Форма загрузки передаёт файлы с `enctype="multipart/form-data"`, обработчик передаёт `request.FILES` форме. При локальной разработке в `urls.py` добавляют:
-
-```python
-from django.conf import settings
-from django.conf.urls.static import static
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-```
-
-На рабочем сервере выдачу медиа настраивают отдельно. База хранит путь к файлу, а сам файл хранится в файловом хранилище. Вариант 2 не требует изображения товара, поэтому эта настройка рассмотрена в ответе на вопрос. См. [выдачу загруженных файлов при разработке](https://docs.djangoproject.com/en/6.0/howto/static-files/#serving-files-uploaded-by-a-user-during-development) и [ImageField](https://docs.djangoproject.com/en/6.0/ref/models/fields/#imagefield).
+Добавить `ImageField`, установить Pillow, задать `MEDIA_ROOT` и `MEDIA_URL`. Для загрузки передавать `request.FILES`, а для просмотра при разработке подключить маршрут через `static()`.
 
 ### 9 Для чего нужен метод __str__ в модели?
 
-Он возвращает понятное строковое представление объекта. В `Product` метод возвращает `self.name`, поэтому в консоли и административной панели отображается название товара. Метод должен возвращать строку. См. [пример строкового представления модели](https://docs.djangoproject.com/en/6.0/intro/tutorial02/#playing-with-the-api).
+Чтобы объект отображался понятным текстом. У товара он возвращает название: `return self.name`.
 
 ### 10 Что будет, если выполнить makemigrations без migrate?
 
-Будут созданы файлы миграций, но схема базы не изменится. Для новой модели таблица ещё не появится; после добавления поля соответствующего столбца ещё не будет. Обращение ORM к отсутствующей таблице или столбцу может завершиться ошибкой. Для применения изменений необходима команда `migrate`. См. [порядок применения миграций](https://docs.djangoproject.com/en/6.0/topics/migrations/#workflow).
+Файл миграции появится, но база не изменится. Для изменения базы нужно выполнить `migrate`.
 
 ## Вывод
 
