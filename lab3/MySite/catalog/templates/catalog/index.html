@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title }}</title>
+    <style>
+        body { max-width: 900px; margin: 36px auto; padding: 0 20px; font-family: Arial, sans-serif; color: #202830; background: #f5f7fa; }
+        header { margin-bottom: 28px; }
+        h1 { margin-bottom: 8px; }
+        nav a { margin-right: 16px; color: #1759a6; }
+        article { background: white; border: 1px solid #dce2e8; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+        article h2 { margin-top: 0; }
+        .price { font-size: 22px; font-weight: bold; }
+        .available { color: #196c38; }
+        .unavailable { color: #9b3030; }
+        .date { color: #586572; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>{{ title }}</h1>
+        <p>Всего товаров: {{ products|length }}. Сначала показаны новые.</p>
+        <nav>
+            <a href="{% url 'catalog:index' %}">Каталог</a>
+            <a href="{% url 'admin:index' %}">Административная панель</a>
+        </nav>
+    </header>
+    <main>
+        {% for product in products %}
+        <article>
+            <h2>{{ product.name }}</h2>
+            <p class="price">{{ product.price|floatformat:2 }} руб.</p>
+            <p>{{ product.description|default:"Описание не добавлено"|linebreaksbr }}</p>
+            {% if product.in_stock %}
+            <p class="available">В наличии · Количество: {{ product.quantity }}</p>
+            {% else %}
+            <p class="unavailable">Нет в наличии · Количество: {{ product.quantity }}</p>
+            {% endif %}
+            <p class="date">Добавлен: {{ product.created_at|date:"d.m.Y H:i" }}</p>
+        </article>
+        {% empty %}
+        <p>В каталоге пока нет товаров.</p>
+        {% endfor %}
+    </main>
+</body>
+</html>
